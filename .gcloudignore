@@ -1,0 +1,4 @@
+#!include:.gitignore
+!.env
+!credentials.json
+!token.pickle
