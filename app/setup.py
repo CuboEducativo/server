@@ -30,3 +30,6 @@ def init_service():
             pickle.dump(creds, token)
 
     return build('sheets', 'v4', credentials=creds)
+
+# Call the Sheets API
+sheets = init_service().spreadsheets()
