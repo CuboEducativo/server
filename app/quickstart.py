@@ -27,9 +27,11 @@ def hello_world():
 
 @app.route('/paymentCallback', methods=['POST', 'GET'])
 def payment():
-    token = request.values.to_dict(flat=False)['token'][0]
-    status = status = get_payment_status(token)
+    queries = request.values.to_dict(flat=False)
+    token = queries['token'][0]
+    status = get_payment_status(token)
     numbers = status['optional']['numbers']
+    numbers = json.loads(numbers)
     takeNumbers(numbers)
     return 'done'
 

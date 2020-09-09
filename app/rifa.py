@@ -50,7 +50,7 @@ def takeNumbers(numbers):
         }
         result = sheets.values().update(
             spreadsheetId=SPREADSHEET_ID,
-            range='Rifa!B{}'.format(number+1),
+            range='Rifa!B{}'.format(int(number)+1),
             valueInputOption="RAW",
             body=body
         ).execute()
