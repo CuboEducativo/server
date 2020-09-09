@@ -29,25 +29,24 @@ def generate_payment(numbers, email):
     params = {
         'apiKey': FLOW_API_KEY,
         'commerceOrder': 'rifa2020-{}'.format(uuid1()),
-        'subject': 'Números de rifa',
+        'subject': 'Numero de rifa',
         'amount': '{}'.format(len(numbers) * 1000),
-        'email': email,
+        'email': '{}'.format(email),
         'urlConfirmation': '{}/paymentCallback'.format(API_URL),
-        'urlReturn': 'https://google.com',
+        'urlReturn': 'https://www.cuboeducativo.cl/gracias',
         'optional': json.dumps({
             'numbers': json.dumps(numbers)
         })
     }
     params['s'] = signParams(params)
     response = requests.post('https://www.flow.cl/api/payment/create', data = params)
-    response = response.json()
-    print(response)
-    return response
+    return response.json()
 
-def write_numbers(numbers, value):
+
+def takeNumbers(numbers):
     for number in numbers:
         body = { 
-        "values": [[ value ]]
+        "values": [[ NumberStatus.TAKEN.value ]]
         }
         result = sheets.values().update(
             spreadsheetId=SPREADSHEET_ID,
@@ -56,6 +55,32 @@ def write_numbers(numbers, value):
             body=body
         ).execute()
 
-def reserve_numbers(numbers):
-    write_numbers(numbers, NumberStatus.RESERVED.value)
+
+def reserve_numbers(numbers, email = '', instagram = '', address = ''):
+    result = sheets.values().get(spreadsheetId=SPREADSHEET_ID,
+                               range='Rifa').execute()
+    values = result.get('values', [])
+    df = matrix_to_df(values)
+    strNumbers = [str(i) for i in numbers]
+    numbers_df = df[df['Numero'].isin(strNumbers)]
+    unavailable = numbers_df[numbers_df['Estado'] != '0']
+    if unavailable.shape[0] == 0:
+        for number in numbers:
+            body = { 
+            "values": [[ NumberStatus.RESERVED.value, email, address, instagram ]]
+            }
+            result = sheets.values().update(
+                spreadsheetId=SPREADSHEET_ID,
+                range='Rifa!B{}:E{}'.format(number+1,number+1),
+                valueInputOption="RAW",
+                body=body
+            ).execute()
+        return {
+            'action': 'reserved'
+        }
+    else:
+        return {
+            'action': 'not_reserved',
+            'not_available': unavailable['Numero'].tolist()
+        }
 
