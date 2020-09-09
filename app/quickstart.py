@@ -50,12 +50,13 @@ def rifa():
 @app.route('/buyNumbers', methods=['POST'])
 def buy_numbers():
     data = request.get_json(force=True)
-    numbers = data['numbers']
-    email = data['email']
-    instagram = data['instagram']
-    address = data['address']
+    numbers = data.get('numbers', '')
+    email = data.get('email', '')
+    instagram = data.get('instagram', '')
+    address = data.get('address', '')
+    name = data.get('name', '')
 
-    result = reserve_numbers(numbers, email, instagram, address)
+    result = reserve_numbers(numbers, email, instagram, address, name)
     if result['action'] == 'not_reserved':
         return result
     payment = generate_payment(numbers, email)

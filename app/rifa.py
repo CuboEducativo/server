@@ -56,7 +56,7 @@ def takeNumbers(numbers):
         ).execute()
 
 
-def reserve_numbers(numbers, email = '', instagram = '', address = ''):
+def reserve_numbers(numbers, email = '', instagram = '', address = '', name = ''):
     result = sheets.values().get(spreadsheetId=SPREADSHEET_ID,
                                range='Rifa').execute()
     values = result.get('values', [])
@@ -67,7 +67,7 @@ def reserve_numbers(numbers, email = '', instagram = '', address = ''):
     if unavailable.shape[0] == 0:
         for number in numbers:
             body = { 
-            "values": [[ NumberStatus.RESERVED.value, email, address, instagram ]]
+            "values": [[ NumberStatus.RESERVED.value, email, address, instagram, name ]]
             }
             result = sheets.values().update(
                 spreadsheetId=SPREADSHEET_ID,
